@@ -18,28 +18,21 @@ const App = () => {
       transform: [{rotateZ: `${rotation.value}deg`}],
     };
   });
-  //ball
-  const isPressed = useSharedValue(false);
+
   const handleAngle = (value: number) => {
     setCurrentAngle(parseInt(value.toFixed(), 10));
   };
   const easing = Easing.bezier(0.23, 1, 0.32, 1);
-  const gesture = Gesture.Pan()
-    .onBegin(() => {
-      'worklet';
-      isPressed.value = true;
-    })
-    .onUpdate(e => {
-      'worklet';
-      rotation.value = withTiming(
-        Math.abs(e.velocityY) / 7 + rotation.value,
-        {
-          duration: 1000,
-          easing: easing,
-        },
-        () => runOnJS(handleAngle)(rotation.value % 360),
-      );
-    });
+  const gesture = Gesture.Pan().onUpdate(e => {
+    rotation.value = withTiming(
+      Math.abs(e.velocityY) / 7 + rotation.value,
+      {
+        duration: 1000,
+        easing: easing,
+      },
+      () => runOnJS(handleAngle)(rotation.value % 360),
+    );
+  });
 
   const getCurrentColor = () => {
     const angle = currentAngle % 360;
