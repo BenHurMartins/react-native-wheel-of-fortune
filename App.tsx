@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {FC, useState} from 'react';
 import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
 import {Gesture, GestureDetector} from 'react-native-gesture-handler';
 import Animated, {
@@ -8,6 +8,33 @@ import Animated, {
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
+
+const Wheel = () => {
+  return (
+    <>
+      <View style={styles.circleRow}>
+        <View style={[styles.pizza, styles.pizzaRed]} />
+        <View style={[styles.pizza, styles.pizzaBlue]} />
+      </View>
+      <View style={styles.circleRow}>
+        <View style={[styles.pizza, styles.pizzaGreen]} />
+        <View style={[styles.pizza, styles.pizzaYellow]} />
+      </View>
+    </>
+  );
+};
+
+const Info: FC<{currentColor: string; currentAngle: number}> = ({
+  currentAngle,
+  currentColor,
+}) => {
+  return (
+    <View style={styles.infoBox}>
+      <Text style={styles.text}>Current Color: {currentColor}</Text>
+      <Text style={styles.text}>Current Angle: {currentAngle}</Text>
+    </View>
+  );
+};
 
 const App = () => {
   const rotation = useSharedValue(0);
@@ -35,25 +62,10 @@ const App = () => {
   });
 
   const getCurrentColor = () => {
-    const angle = currentAngle % 360;
-    const possibleValues = [
-      {color: 'red', maxAngle: 90},
-      {color: 'green', maxAngle: 180},
-      {color: 'yellow', maxAngle: 270},
-      {color: 'blue', maxAngle: 260},
-    ];
-    const color = possibleValues.reduce((prev, curr, ix) => {
-      if (ix === 0 && angle === 0) return 'blue';
-      if (ix === 0 && curr.maxAngle > angle) return curr.color;
-      if (
-        ix > 0 &&
-        curr.maxAngle > angle &&
-        possibleValues[ix - 1].maxAngle < angle
-      )
-        return curr.color;
-      return prev;
-    }, '');
-    return color || 'blue';
+    if (currentAngle < 91) return 'Red';
+    if (currentAngle < 181) return 'Green';
+    if (currentAngle < 271) return 'Yellow';
+    return 'Blue';
   };
 
   return (
@@ -61,27 +73,32 @@ const App = () => {
       <GestureDetector gesture={gesture}>
         <View style={styles.circleContainer}>
           <View style={styles.pointer} />
-
           <Animated.View style={[styles.circle, animatedStyles]}>
-            <View style={styles.circleRow}>
-              <View style={styles.pizzaRed} />
-              <View style={styles.pizzaBlue} />
-            </View>
-            <View style={styles.circleRow}>
-              <View style={styles.pizzaGreen} />
-              <View style={styles.pizzaYellow} />
-            </View>
+            <Wheel />
           </Animated.View>
         </View>
       </GestureDetector>
-      <Text>Current Color = {getCurrentColor()}</Text>
-      <Text>Current Angle = {currentAngle}</Text>
-      {/* <Ball /> */}
+      <Info currentAngle={currentAngle} currentColor={getCurrentColor()} />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  text: {
+    color: 'white',
+    fontSize: 16,
+  },
+  infoBox: {
+    marginTop: 15,
+    height: 40,
+    justifyContent: 'space-between',
+  },
+  circleRow: {width: '100%', height: '50%', flexDirection: 'row'},
+  pizza: {width: '50%', height: '100%'},
+  pizzaRed: {backgroundColor: '#ce4257'},
+  pizzaBlue: {backgroundColor: '#4361ee'},
+  pizzaYellow: {backgroundColor: '#fee440'},
+  pizzaGreen: {backgroundColor: '#06d6a0'},
   circle: {
     width: 300,
     height: 300,
@@ -90,12 +107,8 @@ const styles = StyleSheet.create({
     borderRadius: 150,
     borderWidth: 2,
     overflow: 'hidden',
+    borderColor: '#ced4da',
   },
-  circleRow: {width: '100%', height: '50%', flexDirection: 'row'},
-  pizzaRed: {width: '50%', height: '100%', backgroundColor: 'red'},
-  pizzaBlue: {width: '50%', height: '100%', backgroundColor: 'blue'},
-  pizzaYellow: {width: '50%', height: '100%', backgroundColor: 'yellow'},
-  pizzaGreen: {width: '50%', height: '100%', backgroundColor: 'green'},
   ball: {
     width: 100,
     height: 100,
@@ -107,6 +120,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#343a40',
   },
   circleContainer: {
     width: 300,
